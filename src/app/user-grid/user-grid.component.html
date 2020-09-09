@@ -1,6 +1,11 @@
 <ag-grid-angular
-    style="width: auto; height: 500px;"
+    style="width: auto; height: 500px; white-space: normal;"
     class="ag-theme-balham"
+    [rowHeight]="100"
+    [pagination]="true"
+    [enableSorting]="true"
+    [enableFilter]="true"
     [rowData]="rowData"
-    [columnDefs]="columnDefs">
+    [columnDefs]="columnDefs"
+    [frameworkComponents]="frameworkComponents">
 </ag-grid-angular>

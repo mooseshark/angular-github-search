@@ -67,39 +67,131 @@ const USER_SEARCH = gql`
   styleUrls: ['./user-grid.component.css']
 })
 export class UserGridComponent implements OnInit {
-
   columnDefs = [
-    {headerName: "", field: "avatarUrl"},
-    {headerName: "Login Name", field: "login"},
-    {headerName: "Name", field: "name"},
-    {headerName: "Bio", field: "bioHMTL"},
-    {headerName: "Location", field: "location"},
-    {headerName: "Status", field: "status.message"},
-    {headerName: "E-mail", field: "email"},
-    {headerName: "Company", field: "companyHTML"},
-    {headerName: "Twitter Handle", field: "twitterUsername"},
-    {headerName: "Website", field: "websiteUrl"},
-    {headerName: "Total Followers", field: "followers.totalCount"},
-    {headerName: "Total Packages", field: "packages.totalCount"},
-    {headerName: "Total Projects", field: "projects.totalCount"},
-    {headerName: "Total Repositories", field: "repositories.totalCount"},
-    {headerName: "Total Repositories Disk Usage", field: "repositories.totalDiskUsage"},
-    {headerName: "Total Issues", field: "issues.totalCount"},
-    {headerName: "Total Following", field: "following.totalCount"},
-    {headerName: "Total Starred Repositories", field: "starredRepositories.totalCount"},
-    {headerName: "", field: "url"},
+    {
+      headerName: "",
+      field: "avatarUrl",
+      cellRenderer: this.imgRenderer
+    },{
+      headerName: "Login Name",
+      field: "login"
+    },{
+      headerName: "Name",
+      field: "name"
+    },{
+      headerName: "Bio",
+      field: "bioHTML",
+      cellRenderer: this.htmlRenderer
+    },{
+      headerName: "Location",
+      field: "location"
+    },{
+      headerName: "Status",
+      field: "status",
+      cellRenderer: this.statusRenderer
+    },{
+      headerName: "E-mail",
+      field: "email"
+    },{
+      headerName: "Company",
+      field: "companyHTML",
+      cellRenderer: this.htmlRenderer
+    },{
+      headerName: "Twitter Handle",
+      field: "twitterUsername",
+      cellRenderer: this.twitterRenderer
+    },{
+      headerName: "Website",
+      field: "websiteUrl",
+      cellRenderer: this.websiteRenderer
+    },{
+      headerName: "Total Followers",
+      field: "followers.totalCount"
+    },{
+      headerName: "Total Packages",
+      field: "packages.totalCount"
+    },{
+      headerName: "Total Projects",
+      field: "projects.totalCount"
+    },{
+      headerName: "Total Repositories",
+      field: "repositories.totalCount"
+    },{
+      headerName: "Total Repositories Disk Usage",
+      field: "repositories.totalDiskUsage",
+      cellRenderer: this.totalDiskUsageRenderer
+    },{
+      headerName: "Total Issues",
+      field: "issues.totalCount"
+    },{
+      headerName: "Total Following",
+      field: "following.totalCount"
+    },{
+      headerName: "Total Starred Repositories",
+      field: "starredRepositories.totalCount"
+    },{
+      headerName: "",
+      field: "url",
+      cellRenderer: this.onClickButton,
+      cellClass: {color: 'red', 'background-color': 'green'}
+      // cellRendererParams: {
+      //   onClick: this.onBtnClick1.bind(this),
+      //   label: 'Click 1'
+      // },
+      // minWidth: 150
+    },
   ];
 
-  rowData = [];
-  users: [];
+  rowData: any = [];
+  private users: any = [];
+
 
   constructor(private userService: UserService) { }
 
+  /*
+   * Status Renderers
+   */
+  htmlRenderer(params): any { return params.value; }
+
+  imgRenderer(params): any {
+    if(!params.value) return ;
+    return '<img src="' + params.value + '" width="100" height="100">';
+  }
+
+  statusRenderer(params): any { return params.value }
+
+  totalDiskUsageRenderer(params): any { return params.value ? params.value + ' KB' : '0 KB' }
+
+  twitterRenderer(params): any {
+    if(!params.value) return ;
+    return '<a href="https://twitter.com/' + params.value + '" rel="noopener noreferrer" target="_blank">' + params.value + '</a>';
+  }
+
+  websiteRenderer(params): any {
+    if(!params.value) return ;
+    if(params.value.indexOf('http://') === -1 && params.value.indexOf('https://') === -1){
+      params.value = 'http://' + params.value;
+    }
+    return '<a href="' + params.value + '" rel="noopener noreferrer" target="_blank">' + params.value + '</a>';
+  }
+
+  onClickButton(params): any {
+    if(params.value)
+      return '<a style="" href="' + params.value + '" role="button" rel="noopener noreferrer" target="_blank">View Profile</a>'
+  }
+
   async getUsers(): Promise<any> {
+      let unfilteredRowData = [];
+
       this.users = await this.userService.getUsers();
-      let nodes = this.users.nodes;
-      this.rowData = nodes;
-      console.log(nodes);
+      unfilteredRowData = this.users.nodes;
+
+      for (let r in unfilteredRowData) {
+        if (unfilteredRowData[r].status)
+          unfilteredRowData[r].status = unfilteredRowData[r].status.message + ' ' + unfilteredRowData[r].status.emojiHTML;
+      }
+
+      this.rowData =  unfilteredRowData;
   }
 
   ngOnInit(): void {

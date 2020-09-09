@@ -83,9 +83,7 @@ export class UserService {
          });
 
       setTimeout( function() {
-        if(me.users !== 'undefined'){
-          resolve(me.users)
-        }
+        resolve(me.users)
       }, 1000)
     })
   }
