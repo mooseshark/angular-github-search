@@ -7,8 +7,8 @@ import { map } from 'rxjs/operators';
 import gql from 'graphql-tag';
 
 const USER_SEARCH = gql`
-  query getUsers {
-    search(query: "moose", type: USER, first: 10) {
+  query getUsers ($searchTerm: String!, $recordsToReturn: Int!) {
+    search(query: $searchTerm, type: USER, first: $recordsToReturn) {
        nodes {
          ... on User {
            login
@@ -70,11 +70,33 @@ export class UserService {
 
   constructor(private apollo: Apollo) { }
 
+  fetchMoreUsers(searchTerms): any {
+    console.log(searchTerms);
+    this.apollo.watchQuery<any>({
+      query: USER_SEARCH,
+      variables: {
+        searchTerm: searchTerms,
+        recordsToReturn: 10
+      }
+    })
+      .valueChanges
+        .subscribe(({ data, loading }) => {
+         this.loading = loading;
+         this.users = data.search;
+       });
+
+    return this.users;
+  }
+
   getUsers(): any {
     return  new Promise((resolve, reject) => {
       let me = this;
       this.apollo.watchQuery<any>({
-        query: USER_SEARCH
+        query: USER_SEARCH,
+        variables: {
+          searchTerm: 'moose',
+          recordsToReturn: 10
+        }
       })
         .valueChanges
           .subscribe(({ data, loading }) => {

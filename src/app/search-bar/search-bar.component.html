@@ -1,0 +1,29 @@
+<div class="row justify-content-left">
+  <div class="col-8 col-md-6 col-lg-4">
+    <form class="card card-sm">
+    <div class="card-body row no-gutters align-items-center">
+      <div class="col-auto">
+        <i class="fas fa-search h4 text-body"></i>
+      </div>
+      <div class="col">
+        <input
+          #searchBox id="search-box"
+          (keydown.enter)="search(searchBox.value, $event)"
+          class="form-control form-control-lg form-control-borderless"
+          type="search"
+          placeholder="Search Users"
+        >
+      </div>
+      <div class="col-auto" style="padding-left:10px;">
+        <button
+          (click)="search(searchBox.value, $event)"
+          class="btn btn-lg btn-info"
+          type="button"
+          value="Search">
+          Search
+        </button>
+      </div>
+    </div>
+    </form>
+  </div>
+</div>
