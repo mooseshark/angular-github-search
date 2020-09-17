@@ -178,11 +178,16 @@ export class UserGridComponent implements OnInit {
       return '<a class="btn btn-info" href="' + params.value + '" role="button" rel="noopener noreferrer" target="_blank">View Profile</a>'
   }
 
-  async getUsers(): Promise<any> {
+  async getUsers(searchTerms): Promise<any> {
       let unfilteredRowData = [];
 
-      this.users = await this.userService.getUsers();
+      console.log('user component');
+      console.log(searchTerms);
+
+      this.users = await this.userService.getUsers(searchTerms);
       unfilteredRowData = this.users.nodes;
+
+      console.log(unfilteredRowData);
 
       for (let r in unfilteredRowData) {
         if (unfilteredRowData[r].status)
@@ -193,6 +198,5 @@ export class UserGridComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.getUsers();
   }
 }

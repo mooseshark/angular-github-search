@@ -1,8 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 
 import { Apollo } from 'apollo-angular';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import gql from 'graphql-tag';
 
@@ -64,13 +64,15 @@ const USER_SEARCH = gql`
 @Injectable({
   providedIn: 'root'
 })
+
 export class UserService {
   loading: boolean = true;
   users: [];
+  private ngUnsubscribe = new Subject();
 
   constructor(private apollo: Apollo) { }
 
-  fetchMoreUsers(searchTerms): any {
+  /*fetchMoreUsers(searchTerms): any {
     console.log(searchTerms);
     this.apollo.watchQuery<any>({
       query: USER_SEARCH,
@@ -81,32 +83,47 @@ export class UserService {
     })
       .valueChanges
         .subscribe(({ data, loading }) => {
+          console.log(data);
          this.loading = loading;
          this.users = data.search;
        });
-
+       console.log(this.users);
     return this.users;
-  }
+  }*/
 
-  getUsers(): any {
-    return  new Promise((resolve, reject) => {
+  getUsers(searchTerms): any {
+    return new Promise((resolve, reject) => {
       let me = this;
+
+      console.log('service');
+      console.log(searchTerms);
+
       this.apollo.watchQuery<any>({
         query: USER_SEARCH,
         variables: {
-          searchTerm: 'moose',
+          searchTerm: searchTerms,
           recordsToReturn: 10
         }
       })
         .valueChanges
+          .pipe(takeUntil(this.ngUnsubscribe))
           .subscribe(({ data, loading }) => {
+            console.log('data');
+            console.log(data.search);
            this.loading = loading;
            this.users = data.search;
          });
 
       setTimeout( function() {
+        console.log(me.users);
         resolve(me.users)
-      }, 1000)
+        me.users = [];
+      }, 1500)
     })
+  }
+
+  ngOnDestroy() {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
   }
 }
