@@ -18,6 +18,7 @@ import { NavComponent } from './nav/nav.component';
 
 import { AboutComponent } from './about/about.component';
 import { UserGridComponent } from './user-grid/user-grid.component';
+import { SearchBarComponent } from './search-bar/search-bar.component';
 
 const fragmentMatcher = new IntrospectionFragmentMatcher({
   introspectionQueryResultData
@@ -33,7 +34,8 @@ const token = '';
     AppComponent,
     NavComponent,
     AboutComponent,
-    UserGridComponent
+    UserGridComponent,
+    SearchBarComponent
   ],
   imports: [
     BrowserModule,

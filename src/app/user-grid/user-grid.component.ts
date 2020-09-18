@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { UserService } from '../services/user.service';
 
+import { SearchBarComponent } from '../search-bar/search-bar.component';
+
 import { Apollo } from 'apollo-angular';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -81,7 +83,8 @@ export class UserGridComponent implements OnInit {
     },{
       headerName: "Bio",
       field: "bioHTML",
-      cellRenderer: this.htmlRenderer
+      cellRenderer: this.htmlRenderer,
+      cellStyle: {"white-space": "normal", "overflow-y": "auto"}
     },{
       headerName: "Location",
       field: "location"
@@ -95,7 +98,8 @@ export class UserGridComponent implements OnInit {
     },{
       headerName: "Company",
       field: "companyHTML",
-      cellRenderer: this.htmlRenderer
+      cellRenderer: this.htmlRenderer,
+      cellStyle: {"word-wrap": "break-word"}
     },{
       headerName: "Twitter Handle",
       field: "twitterUsername",
@@ -133,18 +137,12 @@ export class UserGridComponent implements OnInit {
       headerName: "",
       field: "url",
       cellRenderer: this.onClickButton,
-      cellClass: {color: 'red', 'background-color': 'green'}
-      // cellRendererParams: {
-      //   onClick: this.onBtnClick1.bind(this),
-      //   label: 'Click 1'
-      // },
-      // minWidth: 150
+      cellStyle: {"text-align": "center"}
     },
   ];
 
   rowData: any = [];
   private users: any = [];
-
 
   constructor(private userService: UserService) { }
 
@@ -177,14 +175,19 @@ export class UserGridComponent implements OnInit {
 
   onClickButton(params): any {
     if(params.value)
-      return '<a style="" href="' + params.value + '" role="button" rel="noopener noreferrer" target="_blank">View Profile</a>'
+      return '<a class="btn btn-info" href="' + params.value + '" role="button" rel="noopener noreferrer" target="_blank">View Profile</a>'
   }
 
-  async getUsers(): Promise<any> {
+  async getUsers(searchTerms): Promise<any> {
       let unfilteredRowData = [];
 
-      this.users = await this.userService.getUsers();
+      console.log('user component');
+      console.log(searchTerms);
+
+      this.users = await this.userService.getUsers(searchTerms);
       unfilteredRowData = this.users.nodes;
+
+      console.log(unfilteredRowData);
 
       for (let r in unfilteredRowData) {
         if (unfilteredRowData[r].status)
@@ -195,6 +198,5 @@ export class UserGridComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.getUsers();
   }
 }

@@ -1,3 +1,4 @@
+<app-search-bar (searchTerms)='getUsers($event)'></app-search-bar>
 <ag-grid-angular
     style="width: auto; height: 500px; white-space: normal;"
     class="ag-theme-balham"
@@ -6,6 +7,5 @@
     [enableSorting]="true"
     [enableFilter]="true"
     [rowData]="rowData"
-    [columnDefs]="columnDefs"
-    [frameworkComponents]="frameworkComponents">
+    [columnDefs]="columnDefs">
 </ag-grid-angular>
