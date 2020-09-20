@@ -194,7 +194,6 @@ export class UserService {
         .valueChanges
           .pipe(takeUntil(this.ngUnsubscribe))
           .subscribe(({ data, loading }) => {
-            console.log('data');
            this.loading = loading;
            this.users = data.search;
            this.pageInfo = data.search.pageInfo;
@@ -204,7 +203,7 @@ export class UserService {
         resolve(me.users)
         me.users = [];
         me.ngOnDestroy();
-      }, 1500)
+      }, 1000)
     })
   }
 
@@ -223,7 +222,6 @@ export class UserService {
         .valueChanges
           .pipe(takeUntil(this.ngUnsubscribe))
           .subscribe(({ data, loading }) => {
-            console.log('data next');
            this.loading = loading;
            this.users = data.search;
            this.pageInfo = data.search.pageInfo;
@@ -233,28 +231,24 @@ export class UserService {
         resolve(me.users)
         me.users = [];
         me.ngOnDestroy();
-      }, 1500)
+      }, 1000)
     })
   }
 
   loadPreviousPage(searchTerms, startCursor): any {
     return new Promise((resolve, reject) => {
       let me = this;
-      console.log(searchTerms);
-      console.log(startCursor);
       this.apollo.watchQuery<any>({
         query: USER_SEARCH_PREVIOUS,
         variables: {
           searchTerm: searchTerms,
           recordsToReturn: 10,
-          cursorNext: startCursor
+          cursorPrevious: startCursor
         }
       })
         .valueChanges
           .pipe(takeUntil(this.ngUnsubscribe))
           .subscribe(({ data, loading }) => {
-            console.log('data previous');
-            console.log(data);
            this.loading = loading;
            this.users = data.search;
            this.pageInfo = data.search.pageInfo;
@@ -264,11 +258,12 @@ export class UserService {
         resolve(me.users)
         me.users = [];
         me.ngOnDestroy();
-      }, 1500)
+      }, 1000)
     })
   }
 
   ngOnDestroy() {
+    this.apollo.getClient().resetStore();
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
   }
