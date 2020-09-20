@@ -3,9 +3,17 @@
     style="width: auto; height: 500px; white-space: normal;"
     class="ag-theme-balham"
     [rowHeight]="100"
-    [pagination]="true"
     [enableSorting]="true"
     [enableFilter]="true"
     [rowData]="rowData"
-    [columnDefs]="columnDefs">
+    [columnDefs]="columnDefs"
+    >
 </ag-grid-angular>
+<app-grid-paging
+  [pageInfo]="pageInfo"
+  [userCount]="userCount"
+  (loadFirst)='getUsers($event)'
+  (loadPrevious)='loadPreviousPage($event)'
+  (loadNext)='loadNextPage($event)'
+  >
+</app-grid-paging>

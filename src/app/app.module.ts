@@ -19,6 +19,7 @@ import { NavComponent } from './nav/nav.component';
 import { AboutComponent } from './about/about.component';
 import { UserGridComponent } from './user-grid/user-grid.component';
 import { SearchBarComponent } from './search-bar/search-bar.component';
+import { GridPagingComponent } from './grid-paging/grid-paging.component';
 
 const fragmentMatcher = new IntrospectionFragmentMatcher({
   introspectionQueryResultData
@@ -35,7 +36,8 @@ const token = '';
     NavComponent,
     AboutComponent,
     UserGridComponent,
-    SearchBarComponent
+    SearchBarComponent,
+    GridPagingComponent
   ],
   imports: [
     BrowserModule,
@@ -44,6 +46,7 @@ const token = '';
     AppRoutingModule,
     AgGridModule.withComponents(null)
   ],
+  exports: [UserGridComponent,GridPagingComponent],
   providers: [{
     provide: APOLLO_OPTIONS,
     useFactory: (httpLink) => {
@@ -54,7 +57,7 @@ const token = '';
           headers: {
             Authorization: `Bearer ${token}`
           }
-        })
+        }),
       })
     },
     deps: [HttpLink]
