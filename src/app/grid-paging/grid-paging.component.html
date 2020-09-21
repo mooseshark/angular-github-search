@@ -1,0 +1,60 @@
+<div class="row justify-content-left" style="margin-right: 0;">
+  <div class="col-8 col-md-6 col-lg-4">
+    <form class="card card-sm">
+    <div class="card-body row no-gutters align-items-center">
+      <div class="col">
+        <ul class="light-pagination">
+          <li>
+            <button
+              class="btn btn-md btn-info"
+              [attr.disabled]="isActionDisabled('firstPage') ? true : null"
+              (click)="loadFirstPage($event)"
+            >
+              &lt;&lt;
+            </button>
+          </li>
+
+          <li>
+            <button
+              class="btn btn-md btn-info"
+              [attr.disabled]="isActionDisabled('previousPage') ? true : null"
+              (click)="loadPreviousPage($event)"
+            >
+              &lt;
+            </button>
+          </li>
+
+          <li>
+              <button
+                class="btn btn-md btn-info"
+                [attr.disabled]="isActionDisabled('') ? true : null"
+              >
+              {{ pageNumber }} of {{ qntPages }}
+              </button>
+          </li>
+
+          <li>
+            <button
+              class="btn btn-md btn-info"
+              [attr.disabled]="isActionDisabled('nextPage') ? true : null"
+              (click)="loadNextPage($event)"
+            >
+              &gt;
+            </button>
+          </li>
+
+          <li>
+            <button
+              class="btn btn-md btn-info"
+              style="margin-left:250px;"
+              [attr.disabled]="isActionDisabled('') ? true : null"
+            >
+              User Count: {{ userCount }}
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+    </form>
+  </div>
+</div>

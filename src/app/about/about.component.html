@@ -1,1 +1,184 @@
-<p>about works!</p>
+
+<div class="row justify-content-left" style="margin-right: 0;">
+  <div class="col-lg-5">
+    <form class="card card-sm">
+      <div class="card-body row no-gutters align-items-center">
+        <article class="col">
+          <h5><b>Purpose</b></h5>
+          <div>
+            This is meant to be a quick intro into the Angular framework, in
+            particular, building an small Angular project utilizing ag-Grid,
+      			Apollo, and GraphQL. It mimics a similar project I completed for
+      			a coding exercise, however that project was written in Vue.js. It
+      			can be found here: <a href="https://githubusersearch.xyz/">githubusersearch.xyz</a>
+          </div>
+          <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <strong>.xyz domain!</strong> I've chosen to use an .xyz domain simply
+            because of the cost. It's been easierto deploy small projects like
+            this to their own domain than, rather than set up on an existing one
+            I already owned. Plus, they were on sale for $0.89.
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <h5><b>Technologies Used</b></h5>
+          <div>
+            This project was built using Angular 10.1.0. It utilizes Apollo Angular 2.0 
+            to connect to the GraphQL GitHub API v4. I used the latest version of ag-Grid
+            to design the data grid, just for ease of development.
+          </div>
+          <div>
+            There were some difficulties using Apollo with Angular 10, and I ran
+            into a few situations that may have been easier to resolve with older
+            versions of Angular
+          </div>
+          <h5><b>Functionality</b></h5>
+          <div>
+            Essentially, this app is a simple search to find users using the GitHub API.
+            You enter a user name, or partial username and the grip populates with the
+            first 10 results returned from the GraphQL query. Selecting the next button (>)
+            loads the next 10 results. Previous (<) the previous 10, and the (<<) button
+            the initial search results. a count of total users returned is displayed at the
+            bottom, as well as a total count of available pages.
+          </div>
+          <h5><b>Difficulties</b></h5>
+          <div>
+            My version of this for Vue.js was written in about 5.5 days, with no prior
+            knowledge of Vue.js, Apollo, or GraphQL. Because I was able to knock out
+            that version of the app in such a short period of time, I expected a
+            similar result using Angular. I actually expected this to take less
+            time considering I now understood enough about Apollo and GraphQL to
+            slap something functional together. In actuality, this took over twice as
+            long to finish, though some days I worked far less (1-3 hours) than I did
+            when I was building the Vue.js version.
+          </div>
+          <h5><b>Problems with Apollo</b></h5>
+          <div>
+            Apollo was really the biggest headache of this entire process. Documentation
+            for Angular is sparse and somewhat vague, versus the robust amount of
+            information available for React, and the slightly better information
+            available for Vue.js.
+          </div>
+          <div>
+            Because of this, creating the initial connection
+            to my API took substantially more searching and ingenuity than it did
+            for the Vue.js version. The Vue.js version was essentially a copy paste from
+            a GraphQL tutorial I did, and then figuring out how to add the token for
+            authentication. The connection to the API is the result of the documentation
+            and 2-3 tutorials mixed together, as well as some things from the Vue.js
+            version that I was able to carry over.
+          </div>
+          <div>
+            Getting query results was actually fairly simple, but making the results usable
+            was a massive challenge. I thought it would be best to place all of my API
+            calls in a service file, based on a few articles I read in regard to connecting
+            to an API with Angular. Made sense to me, so that's what I did. I was able to
+            return an initial query with a function call from ngOnInit in my grid component.
+          </div>
+          <div>
+            When I went to save these results to a variable and return them to my component
+            they would always be returned as 'undefined' or an empty array. After a lot of
+            troubleshooting where I tried a number of suggestions online, tried a number of
+            combinations of things I pieced together from articles and even made my first
+            ever stackoverflow post looking for insight into the issue, I whittled the problem
+            down to a timing issue.
+          </div>
+          <div>
+            This threw me down a path of more searching and troubleshooting to figure out
+            a way around the timing issue. My initial guess was that ngOnInit was just
+            running the query before anything had a chance to initialize, which is why
+            I was consistently getting a result of 'undefined', so I implemented the search
+            bar component, which would be the thing making the initial query. That turned out
+            to not be the case and still didn't resolve the issue.
+          </div>
+          <div>
+            Finally, the only way I found to resolve the issue was to return a promise from
+            the server, housing the query inside, then set a timer around the resolve that would
+            return the query results. In the component, I used an async function to make the call
+            service using await in order to set the client side variable required to build the
+            rowData array that ag-Grid uses to display results.
+          </div>
+          <div>
+            This works, however it's sloppy and I hate it. I used a 1.5 second timer, which is
+            a little long, but for queries that return a lot of results, it is necessary, and
+            honestly my still not be long enough for some queries to execute, though I haven't
+            found a situation where this is true yet.
+          </div>
+          <div>
+            This method of return results introduces several other issues that had to be addressed,
+            namely the pagination.
+          </div>
+          <h5><b>Pagination Troubles</b></h5>
+          <div>
+            There was already 1 issue I knew I'd re-encounter from the Vue version of the app. The
+            difficulty with setting up pagination. The way the GraphQL API appears to return results
+            is by including 2 cursors. An end cursor that links to the last record in the query
+            results, and a start cursor that links to the first record. More cursors can be returned
+            with the query results, however, each cursor seems to directly reference a record from
+            the results, and are limited at 100 records being returned. So, I may be able to set up
+            something like page buttons, but they could only be calculated out to a certain point,
+            and I could not create a "Last Page" button. Because of this, I decided to just to a
+            first page (which calls the initial search query without using a cursor), and next page,
+            and a previous page button, just to simplify the paging.
+          </div>
+          <div>
+            Now, due to how I had to set up the query with a promise, I was able to simply use
+            refetch to return results from the same query. Instead, I had to run all new queries
+            which would determine the navigation forward and backwards. These had to be promises
+            as well, resulting in each requiring the same 1.5 second timer. Because of the
+            length of time required to load results, the paging buttons can currently
+            be spammed. This mostly causes counter issues, but it can also cause issues with the results
+            that are displayed. A load mask would likely be the easiest way to prevent this, but I haven't
+            looked into it at this time.
+          </div>
+          <h5><b>Result Woes</b></h5>
+          <div>
+            Another major issue I encountered was the initial query or subsequent queries caching, resulting
+            in searches and pagination navigation not returning the correct results. Seacrhes
+            would often require the search button to be click twice to get new results to load
+            which would in turn cause the same cursor to be stored twice for pagination. This would
+            make going backwards in pagination not always load the correct results, and sometimes would
+            result in no results loading at all. This seemed to be resolvable by unsubscribing from the
+            query in Apollo, but the issue persisted. The finally solution ended up being to reset the
+            store using client.resetStore(), which was found on a similar question for Apollo React.
+            Luckily this did the trick, though I don't think this is the best solution for the
+            problem.
+          </div>
+          <h5><b>Other Issues</b></h5>
+          <div>
+            Aside from the major problems with Apollo, which may be because I was using Angular 10,
+            I didn't have a lot of difficulties. I encountered some issues where CSS wasn't being
+            applied correctly. Attempting to build the 'View Profile' button as a separate component
+            proved difficult as it didn't want to play well with ag-Grid. Since the button was simple
+            I chose to just use a cell renderer to create the button instead of fighting with making
+            a separate component in this case.
+          </div>
+          <div>
+            Getting components to talk to each other proved a bit difficult, but I was able to get that working. Most of those troubles came from being new to Angular, and not from a
+            short side from Angular. Some of my components likely needed to be designed a bit better
+            to work together more cohesively, but, otherwise things functioned well together once
+            I worked out what needed to be included to make them work together.
+          </div>
+          <h5><b>Final Thoughts</b></h5>
+          <div>
+            Overall, I'm OK with how this turned out. I don't think this project went exceptionally
+            well, especially considering I started with a functional version of the site
+            in a different framework. But it was a learning experience. In the future I'd
+            probably choose to not use Angular 10, and opt for something a little older like 7 or 8.
+            I'd also use the v3 REST API from GitHub and not use Apollo since most of my problems
+            came from Apollo. I don't want that to seem like a slight against them however. Apollo
+            worked great with the Vue.js version of the app and it made working with the GraphQL API
+            in that instance a breeze. There are just some things that Angular does differently
+            than Vue.js that made this version a bit more tedious.
+          </div>
+          <div>
+            There's also some CSS stuff I would change. Neither version is exceptionally
+            pleasing to look at, but I feel like the Vue.js versions feels a bit less
+            disjointed in it's design. Part of that likely comes from using bootstrap 4 for all
+            of the Vue.js version, vs mixing bootstrap 4 and ag-Grid's style for the Angular version.
+          </div>
+        </article>
+      </div>
+    </form>
+  </div>
+</div>

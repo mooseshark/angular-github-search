@@ -1,65 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { UserService } from '../services/user.service';
 
-import { Apollo } from 'apollo-angular';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-
-import gql from 'graphql-tag';
-
-const USER_SEARCH = gql`
-  query getUsers {
-    search(query: "moose", type: USER, first: 10) {
-       nodes {
-         ... on User {
-           login
-           email
-           location
-           name
-           url
-           twitterUsername
-           websiteUrl
-           avatarUrl
-           anyPinnableItems
-           bioHTML
-           companyHTML
-           followers {
-             totalCount
-           }
-           following {
-             totalCount
-           }
-           packages {
-             totalCount
-           }
-           projects {
-             totalCount
-           }
-           repositories {
-             totalCount
-             totalDiskUsage
-           }
-           starredRepositories {
-             totalCount
-           }
-           status {
-             message
-             emojiHTML
-           }
-           issues {
-             totalCount
-           }
-         }
-       }
-       pageInfo {
-         hasNextPage
-         hasPreviousPage
-         startCursor
-         endCursor
-       }
-       userCount
-     }
-  }`;
+import { GridPagingComponent } from '../grid-paging/grid-paging.component';
+import { SearchBarComponent } from '../search-bar/search-bar.component';
 
 @Component({
   selector: 'app-user-grid',
@@ -81,7 +24,8 @@ export class UserGridComponent implements OnInit {
     },{
       headerName: "Bio",
       field: "bioHTML",
-      cellRenderer: this.htmlRenderer
+      cellRenderer: this.htmlRenderer,
+      cellStyle: {"white-space": "normal", "overflow-y": "auto"}
     },{
       headerName: "Location",
       field: "location"
@@ -95,7 +39,8 @@ export class UserGridComponent implements OnInit {
     },{
       headerName: "Company",
       field: "companyHTML",
-      cellRenderer: this.htmlRenderer
+      cellRenderer: this.htmlRenderer,
+      cellStyle: {"word-wrap": "break-word"}
     },{
       headerName: "Twitter Handle",
       field: "twitterUsername",
@@ -133,18 +78,20 @@ export class UserGridComponent implements OnInit {
       headerName: "",
       field: "url",
       cellRenderer: this.onClickButton,
-      cellClass: {color: 'red', 'background-color': 'green'}
-      // cellRendererParams: {
-      //   onClick: this.onBtnClick1.bind(this),
-      //   label: 'Click 1'
-      // },
-      // minWidth: 150
+      cellStyle: {"text-align": "center"}
     },
   ];
 
   rowData: any = [];
   private users: any = [];
-
+  pageInfo: any = {
+    "hasNextPage": false,
+    "hasPreviousPage": false,
+    "startCursor": '',
+    "endCursor": ''
+  };
+  userCount: number = 0;
+  storedSearchTerms: string = '';
 
   constructor(private userService: UserService) { }
 
@@ -177,13 +124,22 @@ export class UserGridComponent implements OnInit {
 
   onClickButton(params): any {
     if(params.value)
-      return '<a style="" href="' + params.value + '" role="button" rel="noopener noreferrer" target="_blank">View Profile</a>'
+      return '<a class="btn btn-info" href="' + params.value + '" role="button" rel="noopener noreferrer" target="_blank">View Profile</a>'
   }
 
-  async getUsers(): Promise<any> {
+  async getUsers(searchTerms): Promise<any> {
       let unfilteredRowData = [];
 
-      this.users = await this.userService.getUsers();
+      if(this.storedSearchTerms !== searchTerms && searchTerms !== '10103d27-cfde-450a-a04b-3e3f7770fac3'){
+        this.storedSearchTerms = searchTerms;
+      }
+
+      if(searchTerms === '10103d27-cfde-450a-a04b-3e3f7770fac3') {
+        this.users = await this.userService.getUsers(this.storedSearchTerms);
+      } else{
+        this.users = await this.userService.getUsers(searchTerms);
+      }
+
       unfilteredRowData = this.users.nodes;
 
       for (let r in unfilteredRowData) {
@@ -192,9 +148,40 @@ export class UserGridComponent implements OnInit {
       }
 
       this.rowData =  unfilteredRowData;
+      this.pageInfo = this.users.pageInfo;
+      this.userCount = this.users.userCount;
+  }
+
+  async loadNextPage(endCursor): Promise<any> {
+    let unfilteredRowData = [];
+
+    this.users = await this.userService.loadNextPage(this.storedSearchTerms, endCursor);
+    unfilteredRowData = this.users.nodes;
+
+    for (let r in unfilteredRowData) {
+      if (unfilteredRowData[r].status)
+        unfilteredRowData[r].status = unfilteredRowData[r].status.message + ' ' + unfilteredRowData[r].status.emojiHTML;
+    }
+
+    this.rowData =  unfilteredRowData;
+    this.pageInfo = this.users.pageInfo;
+  }
+
+  async loadPreviousPage(startCursor): Promise<any> {
+    let unfilteredRowData = [];
+
+    this.users = await this.userService.loadPreviousPage(this.storedSearchTerms, startCursor);
+    unfilteredRowData = this.users.nodes;
+
+    for (let r in unfilteredRowData) {
+      if (unfilteredRowData[r].status)
+        unfilteredRowData[r].status = unfilteredRowData[r].status.message + ' ' + unfilteredRowData[r].status.emojiHTML;
+    }
+
+    this.rowData =  unfilteredRowData;
+    this.pageInfo = this.users.pageInfo;
   }
 
   ngOnInit(): void {
-    this.getUsers();
   }
 }
