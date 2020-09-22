@@ -14,8 +14,6 @@ import { AppComponent } from './app.component';
 
 import { AgGridModule } from 'ag-grid-angular';
 
-import { NavComponent } from './nav/nav.component';
-
 import { AboutComponent } from './about/about.component';
 import { UserGridComponent } from './user-grid/user-grid.component';
 import { SearchBarComponent } from './search-bar/search-bar.component';
@@ -33,7 +31,6 @@ const token = '';
 @NgModule({
   declarations: [
     AppComponent,
-    NavComponent,
     AboutComponent,
     UserGridComponent,
     SearchBarComponent,

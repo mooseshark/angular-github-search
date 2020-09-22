@@ -2,9 +2,6 @@
   <div class="col-8 col-md-6 col-lg-4">
     <form class="card card-sm">
     <div class="card-body row no-gutters align-items-center">
-      <div class="col-auto">
-        <i class="fas fa-search h4 text-body"></i>
-      </div>
       <div class="col">
         <input
           #searchBox id="search-box"
@@ -14,7 +11,7 @@
           placeholder="Search Users"
         >
       </div>
-      <div class="col-auto">
+      <div class="col-auto" style="padding-left: 10px">
         <button
           (click)="search(searchBox.value, $event)"
           class="btn btn-lg btn-info"
